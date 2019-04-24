@@ -95,13 +95,21 @@ pi <- sum(goals) / (100 * 5)
 # get the probabilities for the chisq test
 goal_probabilities <- sapply(0:5, function(x) dbinom(x, 5, pi))
 
+# merge groups 0, 1 and 2 to satisfy the asymptotic condition
+goal_dist_merged <- c(sum(goal_dist[1:3]), goal_dist[4], goal_dist[5], goal_dist[6])
+goal_probabilities_merged <- c(sum(goal_probabilities[1:3]),
+                               goal_probabilities[4],
+                               goal_probabilities[5],
+                               goal_probabilities[6])
+
 # calculate test statistic
-q_goals <- sum((goal_dist - 100 * goal_probabilities) ** 2 / (100 * goal_probabilities))
-# 29.47864
+q_goals <- sum((goal_dist_merged - 100 * goal_probabilities_merged) ** 2
+               / (100 * goal_probabilities_merged))
+# 3.885007
 quantile_chisq_goals <- qchisq(0.95, 5)
 # 11.0705
 
-# In this case, we can reject H0 because q_goals > quantile_chisq_goals
+# In this case, we can't reject H0 because q_goals < quantile_chisq_goals
 
 # No. 7)
 # ======
