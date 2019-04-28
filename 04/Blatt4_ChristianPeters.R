@@ -58,7 +58,7 @@ kappa_critical_max <- qnorm(0.975, sd=sqrt(24))
 # 9.601823
 
 # As we can see, both estimators are more extreme than the corresponding
-# critical values, so the Jarque-Bera-Test would reject H0 at the 5% niveau.
+# critical values, so the Jarque-Bera-Test rejects H0 at the 5% niveau.
 
 # shapiro-wilk test:
 print(shapiro.test(differences))
@@ -70,3 +70,51 @@ print(shapiro.test(differences))
 # The majority of tests rejected the hypothesis that the data follows a normal
 # distribution so I come to the conclusion that the H0 hypothesis is not a
 # suitable assumption.
+
+# No. 9)
+# ======
+
+# a)
+
+# get data
+untreated <- c(0.05, 0.22, 0.29, 1.44, 0.44, 0.3)
+treated <- c(4.81, 0.68, 0.25, 0.33, 0.7, 1.41)
+
+# sort data to compute the test statistic
+untreated <- sort(untreated)
+treated <- sort(treated)
+
+# calculate test statistic
+n <- 6
+d <- 0
+i <- 0
+j <- 0
+repeat {
+  if (i < n && untreated[i+1] < treated [j+1]) {
+    i <- i+1
+  } else {
+    j <- j+1
+  }
+  curD <- abs(i/n - j/n)
+  if (curD > d) d <- curD
+  if (i == n && j == n) {
+    break
+  }
+}
+# the resulting value of the test statistic is d = 0.5
+# the (asymptotic) critical value for n = 6 is 0.52, so H0 can't be rejected
+
+# b)
+
+# calculate test statistic for the two sample t-test
+n1 <- length(untreated)
+n2 <- length(treated)
+s1 <- var(untreated)
+s2 <- var(treated)
+t <- (mean(untreated) - mean(treated)) / sqrt(((n1-1) * s1 + (n2 - 1) * s2) / (n1 + n2 - 2)) *
+  sqrt((n1 * n2) / (n1 + n2))
+# the value of the test statistic is t = -1.228638
+
+# get the critical value
+t_critical <- qt(0.025, df = 10)
+# the critical value is -2.228139 which means that H0 can't be rejected
