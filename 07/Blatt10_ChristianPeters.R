@@ -7,7 +7,7 @@ data <- read.csv('wines.csv')
 
 # a)
 
-X <- data[, 1:13]
+X <- as.matrix(data[, 1:13])
 
 print(prcomp(X, scale = FALSE))
 
@@ -24,7 +24,7 @@ res <- prcomp(X, scale = TRUE)
 print(res)
 
 # get the first three principal components
-print(best3 <- res$rotation[, 1:3])
+(best3 <- res$rotation[, 1:3])
 
 # create the biplots
 biplot(res, choices=c(1, 2))
@@ -47,4 +47,24 @@ plot(vars, main = 'Scree Plot', ylab = 'Variance')
 # According to this criterion, it makes sense to choose 3 PCs.
 
 # Personally I would rely on the scree plot and choose the best 3 PCs because
-# when knowing nothing else about the problem, this seems to be the most intuitive method.
+# when knowing nothing else about the problem, this seems to be the most intuitive
+# method.
+
+# d)
+
+U <- res$rotation
+
+# get the best two dimensional approximation and its error
+best2DimApprox <- X %*% U[, 1:2] %*% t(U[, 1:2])
+error2Dim <- sum((X - best2DimApprox)**2)
+# 88260289
+
+# get the best four dimensional approximation and its error
+best4DimApprox <- X %*% U[, 1:4] %*% t(U[, 1:4])
+error4Dim <- sum((X - best4DimApprox)**2)
+# 78624925
+
+# e)
+
+(x1_pca <- X[1,] %*% U[, 1:2])
+(z1 <- x1_pca %*% t(U[, 1:2]))
