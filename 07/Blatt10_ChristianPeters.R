@@ -28,8 +28,21 @@ print(res)
 
 # create the biplots
 biplot(res, choices=c(1, 2))
+# We can see that the first two PCs split the data into three clusters.
+# Further analysis could reveal if there is any correspondence between these
+# clusters and the different types of wine (which are three as well).
+# The plot also shows that the variables Phenols, Proa, Flav, Proline OD and Hue
+# are causing negative values of PC1 while AlcAsh and NonFlavPhenols are
+# mostly responsible for positive values.
+# The variables Ash, Color, Alcohol, Mg and Proline load strongly on PC2 in
+# the positive direction.
+
 biplot(res, choices=c(1, 3))
+# In this plot we can't find any nice clusters
+# PC3 seems to distinguish Ash and AlcAsh from the rest of the variables.
+
 biplot(res, choices=c(2, 3))
+# Also no clusters, for loadings see above.
 
 # c)
 
@@ -52,17 +65,19 @@ plot(vars, main = 'Scree Plot', ylab = 'Variance')
 
 # d)
 
+# get U and scale X accordingly
 U <- res$rotation
+X <- scale(X)
 
 # get the best two dimensional approximation and its error
 best2DimApprox <- X %*% U[, 1:2] %*% t(U[, 1:2])
 error2Dim <- sum((X - best2DimApprox)**2)
-# 88260289
+# 1026.1
 
 # get the best four dimensional approximation and its error
 best4DimApprox <- X %*% U[, 1:4] %*% t(U[, 1:4])
 error4Dim <- sum((X - best4DimApprox)**2)
-# 78624925
+# 607.487
 
 # e)
 
