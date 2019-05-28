@@ -35,10 +35,11 @@ plot(vars, main = 'Scree Plot', ylab = 'Variance')
 # Therefore I would choose 2 PCs.
 
 # d)
+X <- scale(X)
 U <- pca$rotation[, 1:2]
 X_approx <- X %*% U %*% t(U)
 error <- sum((X_approx - X)**2)
-# 5630740
+# 152.202
 
 # No. 15)
 # =======
@@ -51,35 +52,46 @@ wines <- read.csv('more_wines.csv')
 mean_barolo <- colMeans(wines[wines$Type=='barolo', 1:2])
 mean_grignolino <- colMeans(wines[wines$Type=='grignolino', 1:2])
 
+# estimate the inverse of the covariance matrix
+cov_inv <- solve(cov(wines[, 1:2]))
+
 # discrimination functions
 d_barolo <- function(x) {
-  -norm(x - mean_barolo, type='2')
+  t(mean_barolo) %*% cov_inv %*% x - 1/2 * t(mean_barolo) %*% cov_inv %*% mean_barolo
 }
 d_grignolino <- function(x) {
-  -norm(x - mean_grignolino, type='2')
+  t(mean_grignolino) %*% cov_inv %*% x - 1/2 * t(mean_grignolino) %*% cov_inv %*% mean_grignolino
 }
-
-# b)
-plot(wines$Phenols, wines$Color, col=wines$Type, pch=16, xlab="Phenols", ylab="Color", main="Wines")
-legend('topleft', inset = 0.02,legend=levels(wines$Type), col=1:2, pch = 16)
-
-dPhenols = mean_barolo[1] - mean_grignolino[1]
-dColor = mean_barolo[2] - mean_grignolino[2]
-mPhenols = (mean_barolo[1] + mean_grignolino[1]) / 2
-mColor = (mean_barolo[2] + mean_grignolino[2]) / 2
-intercept <- dPhenols * mPhenols / dColor + mColor
-slope = -dPhenols / dColor
-abline(a=intercept, b=slope)
-
-# c)
-
-# do the classification
-predictions <- apply(wines[, 1:2], 1, function(x) {
+d <- function(x) {
   if (d_barolo(x) > d_grignolino(x)) {
     return('barolo')
   }
   return('grignolino')
-})
+}
 
+# e(x) = 'barolo' falls d_barolo(x) > d_grignolino(x), 'grignolino' sonst
+
+# b)
+plot(wines$Phenols, wines$Color, col=as.integer(wines$Type)+1, pch=16,
+     xlab="Phenols", ylab="Color", main="Wines")
+legend('topleft', inset = 0.02,legend=levels(wines$Type), col=2:3, pch = 16)
+
+# visualize the separating line
+x_grid <- seq(min(wines$Phenols), max(wines$Phenols), 0.02)
+y_grid <- seq(min(wines$Color), max(wines$Color), 0.02)
+m <- length(x_grid)
+n <- length(y_grid)
+plot_grid <- expand.grid(x_grid, y_grid)
+predictions_grid <- as.factor(apply(plot_grid, 1, d))
+
+contour(x_grid, y_grid, matrix(as.integer(predictions_grid), m, n),
+        levels = c(1.5, 2.5), d = FALSE, add = TRUE, lty = 2)
+
+# c)
+
+# do the classification
+predictions <- apply(wines[, 1:2], 1, d)
+
+# get a (biased!) estimate of the classification error
 error_rate <- 1 - mean(predictions == wines$Type)
-# 0.1496599
+# 0.1088435
