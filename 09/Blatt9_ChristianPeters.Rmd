@@ -91,10 +91,25 @@ Estimate the error on the training as well as on the validation set
 
 # c)
 
-Visualize the data as well as the decision boundaries for the lda as well as for the qda
+Visualize the data as well as the decision boundaries for the lda and for the qda.
+The boundaries of the lda are drawn with solid lines while the boundaries of the qda are drawn with dashed lines.
 
 ```{r echo = FALSE}
-plot(train$X1, train$X2, col = train$Class + 1, xlab = 'X1', ylab = 'X2', ylim = c(-4.5, 6.5))
+x2_dim <- c(-4.5, 6.5)
+plot(train$X1, train$X2, col = train$Class + 1, xlab = 'X1', ylab = 'X2', ylim = x2_dim)
+
+x1_grid <- seq(min(train$X1), max(train$X1), 0.05)
+x2_grid <- seq(min(x2_dim), max(x2_dim), 0.05)
+m <- length(x1_grid)
+n <- length(x2_grid)
+grid <- expand.grid(x1_grid, x2_grid)
+colnames(grid) <- c('X1', 'X2')
+predictions_grid_lda <- apply(grid, 1, d)
+predictions_grid_qda <- predict(qda_model, newdata = grid)$class
+
+contour(x1_grid, x2_grid, matrix(predictions_grid_lda, m, n), levels = c(1.5, 2.5, 3.5), d = FALSE, add = TRUE, lty = 1)
+contour(x1_grid, x2_grid, matrix(predictions_grid_qda, m, n), levels = c(1.5, 2.5, 3.5), d = FALSE, add = TRUE, lty = 2)
+
 legend('topleft', legend=c('Class 1', 'Class 2', 'Class 3'), col = c(2, 3, 4), pch = 1)
 ```
 
